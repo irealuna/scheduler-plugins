@@ -3,10 +3,11 @@
 # Scheduler Plugins
 
 基于[scheduler framework](https://kubernetes.io/docs/concepts/scheduling-eviction/scheduling-framework/)的调度程序插件仓库。
-本项目定义了一个调度器annotation-scheduler,实现filter plugin接口。在Filter plugin接口中判断集群的node节点annotation/annotationmatch annotation是否为boo，若是，则优先调度到该节点。
+
+本项目定义了一个调度器annotation-scheduler,实现filter plugin接口，在Filter plugin接口中判断集群的node节点annotation/annotationmatch annotation是否为boo，若是，则优先调度到该节点。
 
 ## 安装
-
+### 容器镜像
 容器镜像可以在[docker hub](https://hub.docker.com/repositories/irealuna)中获得。
 有两个镜像，一个用于kube调度器，另一个用于控制器。
 
@@ -15,17 +16,17 @@ docker pull irealuna/scheduler-plugins-kube-scheduler:$TAG
 docker pull irealuna/scheduler-plugins-controller:$TAG
 ```
 ### 添加调度器
-编写plugin的配置文件scheduler-config.yaml
+编写`scheduler plugin`的配置文件`scheduler-config.yaml`
 ```shell
 cp ./scheduler-config.yaml /etc/kubernetes/scheduler-config.yaml
 ```
 ### 配置调度器
-备份文件 kube-scheduler.yaml
+备份文件 `kube-scheduler.yaml`
 ```shell
 cp /etc/kubernetes/manifests/kube-scheduler.yaml /etc/kubernetes/kube-scheduler.yaml
 ```
 修改`/etc/kubernetes/manifests/kube-scheduler.yaml`文件来运行scheduler-plugins
-配置文件可参考本项目中./kube-scheduler.yaml
+配置文件可参考本项目中`./kube-scheduler.yaml`
 ```shell
 cp ./kube-scheduler.yaml /etc/kubernetes/manifests/kube-scheduler.yaml
 ```
@@ -63,13 +64,13 @@ cp ./kube-scheduler.yaml /etc/kubernetes/manifests/kube-scheduler.yaml
 <         type: ""
 <       name: localtime
 ```
-修改在/etc/kubernetes/manifests 目录下的kube-scheduler.yaml，kubelet会重新启动kube-scheduler
+修改在 `/etc/kubernetes/manifests` 目录下的`kube-scheduler.yaml`，kubelet会重新启动kube-scheduler
 ## 测试
-1.给node1添加测试的annotation:
+给node1添加测试的annotation:
 ```shell
 kubectl annotate node k8s-node1 annotation/annotationmatch=boo
 ```
-2.创建一个job `job-annotation-not-match.yaml`
+创建一个job `job-annotation-not-match.yaml`
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -90,7 +91,7 @@ spec:
       restartPolicy: Never
   backoffLimit: 4
 ```
-3.创建一个job `job-annotation-match.yaml`
+创建一个job `job-annotation-match.yaml`
 ```yaml
 apiVersion: batch/v1
 kind: Job
@@ -111,11 +112,11 @@ spec:
       restartPolicy: Never
   backoffLimit: 4
 ```
-4.观察其调度状态
+观察其调度状态
 ```shell
 [root@k8s-master0 as-a-second-scheduler]# kubectl get po -owide
 NAME                          READY   STATUS      RESTARTS   AGE   IP             NODE        NOMINATED NODE   READINESS GATES
 pod-annotationmatch-ksqkm     0/1     Completed   0          73m   172.16.36.87   k8s-node1   <none>           <none>
 pod-annotationnomatch-dspk9   0/1     Pending     0          73m   <none>         <none>      <none>           <none>
 ```
-可见带有annotation/annotationmatch: boo的job被调度到了预期的node1上
+可见带有`annotation/annotationmatch: boo`的job被调度到了预期的`node1`上
