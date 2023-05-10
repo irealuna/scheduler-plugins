@@ -6,6 +6,7 @@
 
 本项目定义了一个调度器annotation-scheduler,实现filter plugin接口，在Filter plugin接口中判断集群的node节点annotation/annotationmatch annotation是否为boo，若是，则优先调度到该节点。
 
+
 ## 安装
 ### 容器镜像
 容器镜像可以在[docker hub](https://hub.docker.com/repositories/irealuna)中获得。
@@ -25,7 +26,8 @@ cp ./scheduler-config.yaml /etc/kubernetes/scheduler-config.yaml
 ```shell
 cp /etc/kubernetes/manifests/kube-scheduler.yaml /etc/kubernetes/kube-scheduler.yaml
 ```
-修改`/etc/kubernetes/manifests/kube-scheduler.yaml`文件来运行scheduler-plugins
+修改`/etc/kubernetes/manifests/kube-scheduler.yaml`文件来运行scheduler-plugins.
+
 配置文件可参考本项目中`./kube-scheduler.yaml`
 ```shell
 cp ./kube-scheduler.yaml /etc/kubernetes/manifests/kube-scheduler.yaml
@@ -119,4 +121,4 @@ NAME                          READY   STATUS      RESTARTS   AGE   IP           
 pod-annotationmatch-ksqkm     0/1     Completed   0          73m   172.16.36.87   k8s-node1   <none>           <none>
 pod-annotationnomatch-dspk9   0/1     Pending     0          73m   <none>         <none>      <none>           <none>
 ```
-可见带有`annotation/annotationmatch: boo`的job被调度到了预期的`node1`上
+可见带有`annotation/annotationmatch: boo`的job被调度到了预期的`node1`上.
