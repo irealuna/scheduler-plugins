@@ -2,22 +2,16 @@ package annotationmatch
 
 import (
 	"context"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/klog/v2"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
 )
 
-// 定义plugin struct
+// 1. 定义一个插件结构体
 type AnnotationMatch struct {
 	handle framework.Handle
-}
-
-// New initializes a new plugin and returns it.
-func New(_ runtime.Object, h framework.Handle) (framework.Plugin, error) {
-	klog.V(3).Infof("create annotationmatch plugin")
-	return &AnnotationMatch{handle: h}, nil
 }
 
 // 用来保证AnnotationMatch实现了FilterPlugin的所有接口
@@ -26,11 +20,12 @@ var _ = framework.FilterPlugin(&AnnotationMatch{})
 const Name = "AnnotationMatch"
 const targetAnnotation = "annotation/annotationmatch"
 
-// plugin注册和配置时使用的Name
+// 2. 实现 Plugin 插件，即实现 Name 方法
 func (am *AnnotationMatch) Name() string {
 	return Name
 }
 
+// 3. 实现 Filter 函数
 func (am *AnnotationMatch) Filter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeInfo *framework.NodeInfo) *framework.Status {
 
 	if pod == nil {
@@ -61,4 +56,10 @@ func (am *AnnotationMatch) Filter(ctx context.Context, state *framework.CycleSta
 		}
 	}
 	return framework.NewStatus(framework.UnschedulableAndUnresolvable, "annotation not match")
+}
+
+// 4. 实现 New 函数，返回该自定义插件对象
+func New(_ runtime.Object, h framework.Handle) (framework.Plugin, error) {
+	klog.V(3).Infof("create annotationmatch plugin")
+	return &AnnotationMatch{handle: h}, nil
 }
