@@ -1,0 +1,10 @@
+apiVersion: kubescheduler.config.k8s.io/v1beta2
+kind: KubeSchedulerConfiguration
+clientConnection:
+  kubeconfig: /etc/kubernetes/scheduler.conf
+profiles:
+  - schedulerName: annotation-scheduler # 指定调度器名称
+    plugins:
+      filter:
+        enabled:
+          - name: AnnotationMatch
