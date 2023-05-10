@@ -19,6 +19,13 @@ package main
 import (
 	"os"
 
+	"fmt"
+	"k8s.io/apimachinery/pkg/util/rand"
+	"k8s.io/component-base/logs"
+	"k8s.io/klog/v2"
+	"sigs.k8s.io/scheduler-plugins/pkg/annotationmatch"
+	"time"
+
 	"k8s.io/component-base/cli"
 	_ "k8s.io/component-base/metrics/prometheus/clientgo" // for rest client metric registration
 	_ "k8s.io/component-base/metrics/prometheus/version"  // for version metric registration
@@ -41,10 +48,17 @@ import (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	// Register custom plugins to the scheduler framework.
 	// Later they can consist of scheduler profile(s) and hence
 	// used by various kinds of workloads.
+	fmt.Println("create main from fmt")
+	klog.V(3).Infof("create main")
+
 	command := app.NewSchedulerCommand(
+		// 注册 annotationmatch plugin
+		app.WithPlugin(annotationmatch.Name, annotationmatch.New),
+		// default plugins
 		app.WithPlugin(capacityscheduling.Name, capacityscheduling.New),
 		app.WithPlugin(coscheduling.Name, coscheduling.New),
 		app.WithPlugin(loadvariationriskbalancing.Name, loadvariationriskbalancing.New),
@@ -60,6 +74,8 @@ func main() {
 		app.WithPlugin(qos.Name, qos.New),
 	)
 
+	logs.InitLogs()
+	defer logs.FlushLogs()
 	code := cli.Run(command)
 	os.Exit(code)
 }
